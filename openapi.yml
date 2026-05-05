@@ -38,6 +38,38 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OkResponse"
+  /api/v1/reaction:
+    post:
+      summary: Send a message reaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReactionRequest"
+      responses:
+        "200":
+          description: Enqueue result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+  /api/v1/read:
+    post:
+      summary: Mark a chat as read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReadRequest"
+      responses:
+        "200":
+          description: Enqueue result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
   /api/v1/enter_chatroom:
     post:
       summary: Enter a chat room
@@ -260,6 +292,20 @@ components:
         thread_id:
           type: [string, "null"]
       required: [chat_id, message]
+    ReactionRequest:
+      type: object
+      properties:
+        chat_id:
+          type: string
+        log_id:
+          type: string
+      required: [chat_id, log_id]
+    ReadRequest:
+      type: object
+      properties:
+        chat_id:
+          type: string
+      required: [chat_id]
     EnterChatroomRequest:
       type: object
       properties:
@@ -369,6 +415,13 @@ components:
       properties:
         type:
           const: chat
+        log_id:
+          type: string
+        thread_id:
+          type: [string, "null"]
+        scope:
+          type: string
+          enum: [CHAT_ROOM, THREAD, ALL, UNKNOWN]
         message_type:
           type: integer
         room:
@@ -380,7 +433,16 @@ components:
         attachment:
           type: object
           additionalProperties: true
-      required: [type, message_type, room, author, message, attachment]
+      required:
+        - type
+        - log_id
+        - thread_id
+        - scope
+        - message_type
+        - room
+        - author
+        - message
+        - attachment
     FeedEvent:
       type: object
       properties:
