@@ -163,6 +163,32 @@ paths:
                         $ref: "#/components/schemas/TalkMember"
                     required: [ok, member]
                   - $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/get_users:
+    post:
+      summary: Get users/members in a chat context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetUsersRequest"
+      responses:
+        "200":
+          description: Bulk user lookup result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      ok:
+                        const: true
+                      members:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/TalkMember"
+                    required: [ok, members]
+                  - $ref: "#/components/schemas/ErrorResponse"
   /api/v1/get_chat:
     get:
       summary: Get chat room metadata
@@ -312,6 +338,16 @@ components:
         chat_id:
           type: string
       required: [chat_id]
+    GetUsersRequest:
+      type: object
+      properties:
+        chat_id:
+          type: string
+        user_ids:
+          type: array
+          items:
+            type: string
+      required: [chat_id, user_ids]
     RawQueryRequest:
       type: object
       properties:
