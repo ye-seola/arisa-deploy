@@ -209,6 +209,91 @@ paths:
                         $ref: "#/components/schemas/ChatRoom"
                     required: [ok, chat]
                   - $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/get_chat_log:
+    get:
+      summary: Get a chat log by chat id and log id
+      parameters:
+        - $ref: "#/components/parameters/ChatId"
+        - name: log_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Chat log lookup result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      ok:
+                        const: true
+                      chat_log:
+                        $ref: "#/components/schemas/TalkEvent"
+                    required: [ok, chat_log]
+                  - $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/get_chat_logs:
+    post:
+      summary: Get chat logs by chat id and log ids
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetChatLogsRequest"
+      responses:
+        "200":
+          description: Bulk chat log lookup result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      ok:
+                        const: true
+                      chat_logs:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/TalkEvent"
+                    required: [ok, chat_logs]
+                  - $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/get_thread_chat_logs:
+    get:
+      summary: Get ChatEvents by chat id and thread id
+      parameters:
+        - $ref: "#/components/parameters/ChatId"
+        - name: thread_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5000
+            default: 100
+      responses:
+        "200":
+          description: Thread ChatEvent lookup result
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      ok:
+                        const: true
+                      chat_logs:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ChatEvent"
+                    required: [ok, chat_logs]
+                  - $ref: "#/components/schemas/ErrorResponse"
   /api/v1/get_chat_members:
     get:
       summary: Get active member ids for a chat room
@@ -348,6 +433,16 @@ components:
           items:
             type: string
       required: [chat_id, user_ids]
+    GetChatLogsRequest:
+      type: object
+      properties:
+        chat_id:
+          type: string
+        log_ids:
+          type: array
+          items:
+            type: string
+      required: [chat_id, log_ids]
     RawQueryRequest:
       type: object
       properties:
@@ -444,6 +539,12 @@ components:
       oneOf:
         - $ref: "#/components/schemas/Member"
         - $ref: "#/components/schemas/OpenChatMember"
+      discriminator:
+        propertyName: type
+    TalkEvent:
+      oneOf:
+        - $ref: "#/components/schemas/ChatEvent"
+        - $ref: "#/components/schemas/FeedEvent"
       discriminator:
         propertyName: type
     ChatEvent:
