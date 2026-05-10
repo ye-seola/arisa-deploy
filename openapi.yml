@@ -589,7 +589,11 @@ components:
           $ref: "#/components/schemas/ChatRoom"
         feed:
           $ref: "#/components/schemas/FeedPayload"
-      required: [type, room, feed]
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/TalkMember"
+            - type: "null"
+      required: [type, room, feed, author]
     FeedUser:
       type: object
       properties:
@@ -601,6 +605,7 @@ components:
     FeedPayload:
       oneOf:
         - type: object
+          description: "User join feed. Emitted for normal user join (`feedType: 1`) and open link user join (`feedType: 4`)."
           properties:
             type:
               const: user_join
@@ -650,6 +655,41 @@ components:
               items:
                 type: string
           required: [type, log_ids]
+        - type: object
+          properties:
+            type:
+              const: host_changed
+            prev_host:
+              $ref: "#/components/schemas/FeedUser"
+            new_host:
+              $ref: "#/components/schemas/FeedUser"
+          required: [type, prev_host, new_host]
+        - type: object
+          properties:
+            type:
+              const: moderator_added
+            member:
+              $ref: "#/components/schemas/FeedUser"
+          required: [type, member]
+        - type: object
+          properties:
+            type:
+              const: moderator_removed
+            member:
+              $ref: "#/components/schemas/FeedUser"
+          required: [type, member]
+        - type: object
+          properties:
+            type:
+              const: manager_speaker_mode
+            enable:
+              type: boolean
+          required: [type, enable]
+        - type: object
+          properties:
+            type:
+              const: openlink_delete_link
+          required: [type]
         - type: object
           properties:
             type:
